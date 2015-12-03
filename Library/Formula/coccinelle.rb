@@ -1,8 +1,8 @@
 class Coccinelle < Formula
   desc "Program matching and transformation engine for C code"
   homepage "http://coccinelle.lip6.fr/"
-  url "http://coccinelle.lip6.fr/distrib/coccinelle-1.0.0-rc21.tgz"
-  sha256 "a6609a1f800f84d058c9b395edd0597171594b685f551a9b9c03728a1b416783"
+  url "http://coccinelle.lip6.fr/distrib/coccinelle-1.0.4.tgz"
+  sha256 "7f823813a2ea299c0f6c01d8419b83c4dc6617116d32ba99d726443a1c22b06d"
   revision 1
 
   bottle do
@@ -13,13 +13,23 @@ class Coccinelle < Formula
 
   depends_on "ocaml"
   depends_on "camlp4"
+  depends_on "opam" => :build
+  depends_on "hevea" => :build
 
   def install
+    opamroot = buildpath/"opamroot"
+    ENV["OPAMROOT"] = opamroot
+    ENV["OPAMYES"] = "1"
+    system "opam", "init", "--no-setup"
+    system "opam", "install", "ocamlfind"
     system "./configure", "--disable-dependency-tracking",
+                          "--enable-release",
                           "--enable-ocaml",
                           "--enable-opt",
+                          "--enable-ocaml",
+                          "--with-pdflatex=no",
                           "--prefix=#{prefix}"
-    system "make"
+    system "opam", "config", "exec", "--", "make"
     system "make", "install"
   end
 end
